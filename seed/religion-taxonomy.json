@@ -1,0 +1,60 @@
+[
+  {
+    "id": "christianity",
+    "type": "religion",
+    "displayName": "Christianity",
+    "children": [
+      {
+        "id": "christianity_baptist",
+        "type": "sect",
+        "displayName": "Baptist",
+        "defaultTerminology": { "donation": "tithe", "leader": "Pastor", "service": "Worship Service" },
+        "canonicalTexts": ["Bible"],
+        "defaultCanonVersion": "ESV",
+        "altCanonVersions": ["KJV","NIV","Good News Bible"]
+      }
+    ]
+  },
+  {
+    "id": "buddhism",
+    "type": "religion",
+    "displayName": "Buddhism",
+    "children": [
+      {
+        "id": "buddhism_theravada",
+        "type": "sect",
+        "displayName": "Theravada",
+        "defaultTerminology": { "leader": "Bhikkhu", "service": "Dhamma Talk" },
+        "canonicalTexts": ["Pali Canon"]
+      }
+    ]
+  },
+  {
+    "id": "judaism",
+    "type": "religion",
+    "displayName": "Judaism",
+    "children": [
+      {
+        "id": "judaism_reform",
+        "type": "sect",
+        "displayName": "Reform Judaism",
+        "defaultTerminology": { "leader": "Rabbi", "service": "Service" },
+        "canonicalTexts": ["Tanakh"]
+      }
+    ]
+  },
+  {
+    "id": "hinduism",
+    "type": "religion",
+    "displayName": "Hinduism",
+    "children": [
+      {
+        "id": "hinduism_vaishnava",
+        "type": "sect",
+        "displayName": "Vaishnava",
+        "defaultTerminology": { "leader": "Guru", "service": "Puja" },
+        "canonicalTexts": ["Bhagavad Gita","Vedas"]
+      }
+    ]
+  }
+]

@@ -1,0 +1,48 @@
+# .NET / MAUI
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+*.user
+*.userprefs
+*.suo
+*.csproj.user
+*.vs/
+*.vscode/*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node / Web (future web client)
+node_modules/
+.next/
+dist/
+coverage/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Tools
+/.idea/
+
+# Generated assets
+Resources/AppIcon/*.png
+wwwroot/
+
+# Terraform / IaC
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Media cache
+*.mp4
+*.mov
+*.webm
+*.wav
+*.mp3
