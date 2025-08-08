@@ -119,7 +119,7 @@ public partial class Program
         {
             var created = await service.CreateAsync(req, ct);
             return Results.Created($"/api/tenants/{created.Id}", created);
-        });
+        }).RequireAuthorization();
 
         // SPA fallback: send root redirect if no other endpoint matches (except API & swagger)
         app.MapFallback(async context =>
@@ -158,15 +158,17 @@ public partial class Program
         });
 
         app.MapPost("/api/auth/login", async (
-            [FromBody] LoginRequest request,
+            [FromBody] LoginRequest? request,
             AppDbContext db,
             PasswordHasher<User> hasher,
             JwtSecurityTokenHandler tokenHandler,
             IConfiguration config,
             CancellationToken ct) =>
         {
+            if (request is null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+                return Results.BadRequest();
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email, ct);
-            if (user == null) return Results.Unauthorized();
+            if (user == null || string.IsNullOrEmpty(user.PasswordHash)) return Results.Unauthorized();
             var verify = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
             if (verify == PasswordVerificationResult.Failed) return Results.Unauthorized();
             var jwtOpts = config.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
