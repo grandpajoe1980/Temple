@@ -17,5 +17,22 @@ services:
     ports:
       - "6379:6379"
     command: ["redis-server", "--appendonly", "no"]
+  web:
+    build: ./src/Client/Temple.Web
+    environment:
+      - VITE_API_URL=http://api:5000
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+  api:
+    build: ./src/Server/Temple.Api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
 volumes:
   pgdata:

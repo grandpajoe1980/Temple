@@ -22,8 +22,25 @@ public partial class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+            // CORS for frontend (adjust origins as needed for deployment)
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("frontend", policy =>
+                    policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().SetIsOriginAllowed(_ => true));
+            });
+
+        var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
         builder.Services.AddDbContext<AppDbContext>(o =>
-            o.UseNpgsql(builder.Configuration.GetConnectionString("Postgres") ?? "Host=localhost;Database=temple;Username=postgres;Password=postgres"));
+        {
+            if (useInMemory)
+            {
+                o.UseInMemoryDatabase("test-db");
+            }
+            else
+            {
+                o.UseNpgsql(builder.Configuration.GetConnectionString("Postgres") ?? "Host=localhost;Database=temple;Username=postgres;Password=postgres");
+            }
+        });
 
     builder.Services.AddScoped<ITenantService, TenantService>();
     builder.Services.AddScoped<PasswordHasher<User>>();
@@ -38,13 +55,36 @@ public partial class Program
 
         var app = builder.Build();
 
-        if (app.Environment.IsDevelopment())
+        // Ensure database is migrated before running hosted services that depend on schema
+        using (var scope = app.Services.CreateScope())
+        {
+            try
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.Migrate();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Database migration failed: {ex.Message}");
+                throw; // rethrow so failure is visible
+            }
+        }
+
+    if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
 
+    app.UseCors("frontend");
+
+    // Friendly root redirect for UAT testers
+    app.MapGet("/", () => Results.Redirect("/swagger"));
+
         app.MapHealthChecks("/health");
+
+        app.MapGet("/api/tenants", async (AppDbContext db, CancellationToken ct) =>
+            await db.Tenants.OrderBy(t => t.CreatedUtc).ToListAsync(ct));
 
         app.MapGet("/api/tenants/{id:guid}", async ([FromRoute] Guid id, AppDbContext db, CancellationToken ct) =>
         {
@@ -56,6 +96,18 @@ public partial class Program
         {
             var created = await service.CreateAsync(req, ct);
             return Results.Created($"/api/tenants/{created.Id}", created);
+        });
+
+        // SPA fallback: send root redirect if no other endpoint matches (except API & swagger)
+        app.MapFallback(async context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                await context.Response.WriteAsync("Not Found");
+                return;
+            }
+            context.Response.Redirect("/swagger");
         });
 
         app.MapPost("/api/auth/register", async (
