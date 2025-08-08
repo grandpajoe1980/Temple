@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -6,6 +7,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,6 +25,8 @@ export default function Login() {
       const json = await resp.json();
       setToken(json.accessToken);
       localStorage.setItem('auth_token', json.accessToken);
+      // Redirect to home page after successful login
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Unknown error');
     } finally {
@@ -57,6 +61,8 @@ export default function Login() {
       const json = await resp.json();
       setToken(json.accessToken);
       localStorage.setItem('auth_token', json.accessToken);
+      // Redirect to home page after successful guest access
+      navigate('/');
     } catch (e: any) {
       setError(e.message || 'Unknown error');
     } finally {

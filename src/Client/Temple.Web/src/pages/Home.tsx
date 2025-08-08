@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Tenant { id: string; name: string; slug: string; }
 
@@ -8,6 +9,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Tenant[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     try {
@@ -31,7 +33,7 @@ export default function Home() {
     try {
       // Accept direct slug or attempt slugify (simple)
       const slug = q.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      const resp = await fetch(`/api/tenants/by-slug/${encodeURIComponent(slug)}`);
+      const resp = await fetch(`/api/v1/tenants/by-slug/${encodeURIComponent(slug)}`);
       if (resp.status === 404) { setError('No temple found for that name.'); return; }
       if (!resp.ok) throw new Error('Search failed');
       const t = await resp.json();
@@ -48,6 +50,10 @@ export default function Home() {
     if (favorites.some(f => f.id === result.id)) return;
     const list = [...favorites, result].slice(0, 12);
     saveFavorites(list);
+  }
+
+  function enterTenant(tenant: Tenant) {
+    navigate(`/tenant/${tenant.slug}`);
   }
 
   function removeFavorite(id: string) {
@@ -79,6 +85,7 @@ export default function Home() {
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button style={styles.secondaryBtn} onClick={favoriteCurrent}>Favorite</button>
+              <button style={styles.primaryBtn} onClick={() => enterTenant(result)}>Enter</button>
               <a style={styles.linkBtn} href="/login">Login</a>
             </div>
           </div>
@@ -94,6 +101,7 @@ export default function Home() {
                     <div style={{ fontSize: 12, opacity: 0.7 }}>{f.slug}</div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <button onClick={() => enterTenant(f)} style={styles.miniBtn}>Enter</button>
                     <a href="/login" style={styles.miniBtn}>Login</a>
                     <button onClick={() => removeFavorite(f.id)} style={styles.miniDanger}>×</button>
                   </div>
@@ -123,7 +131,7 @@ const styles: Record<string, React.CSSProperties> = {
   favs: { marginTop: 10 },
   favGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: 16 },
   favCard: { background: '#fff', borderRadius: 20, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'stretch', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', minHeight: 110 },
-  miniBtn: { background: '#2b59ff', color: '#fff', borderRadius: 18, padding: '6px 12px', fontSize: 12, textDecoration: 'none', textAlign: 'center' },
+  miniBtn: { background: '#2b59ff', color: '#fff', borderRadius: 18, padding: '6px 12px', fontSize: 12, textDecoration: 'none', textAlign: 'center', border: 'none', cursor: 'pointer', display: 'block' },
   miniDanger: { background: '#ff4d4f', color: '#fff', borderRadius: 18, padding: '6px 12px', fontSize: 14, border: 'none', cursor: 'pointer' },
   footerHint: { marginTop: 40, fontSize: 12, textAlign: 'center', opacity: 0.6 }
 };
