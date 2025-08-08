@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Temple.Application.Tenants;
+using System.Net.Http.Headers;
 
 namespace Temple.Tests;
 
@@ -36,6 +37,15 @@ public class ApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task Can_Create_And_Get_Tenant()
     {
         var client = _factory.CreateClient();
+        var email = $"test{Guid.NewGuid()}@example.com";
+        var pwd = "Pass123$";
+        var reg = await client.PostAsJsonAsync("/api/auth/register", new { Email = email, Password = pwd });
+        reg.EnsureSuccessStatusCode();
+        var login = await client.PostAsJsonAsync("/api/auth/login", new { Email = email, Password = pwd });
+        login.EnsureSuccessStatusCode();
+        var tokenObj = await login.Content.ReadFromJsonAsync<LoginResponse>();
+        Assert.NotNull(tokenObj);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenObj!.AccessToken);
         var created = await client.PostAsJsonAsync("/api/tenants", new TenantCreateRequest("Integration Tenant"));
         created.EnsureSuccessStatusCode();
         var createdObj = await created.Content.ReadFromJsonAsync<TenantResponse>();
@@ -45,4 +55,5 @@ public class ApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     private record TenantResponse(Guid Id, string Name, string Slug, string? Status);
+    private record LoginResponse(string AccessToken);
 }
