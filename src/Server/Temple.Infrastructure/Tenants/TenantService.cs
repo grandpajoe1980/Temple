@@ -24,10 +24,23 @@ public class TenantService : ITenantService
             slug = $"{slugBase}-{i++}";
         }
 
+        string? taxonomyId = request.TaxonomyId;
+        if (taxonomyId == null && !string.IsNullOrWhiteSpace(request.ReligionId))
+        {
+            // Attempt to pick first sect under religion
+            taxonomyId = await _db.ReligionTaxonomies
+                .Where(t => t.ParentId == request.ReligionId && t.Type == "sect")
+                .OrderBy(t => t.DisplayName)
+                .Select(t => t.Id)
+                .FirstOrDefaultAsync(ct);
+            taxonomyId ??= request.ReligionId; // fallback to religion node if no sects
+        }
+
         var tenant = new Tenant
         {
             Name = request.Name.Trim(),
-            Slug = slug
+            Slug = slug,
+            TaxonomyId = taxonomyId
         };
         _db.Tenants.Add(tenant);
         await _db.SaveChangesAsync(ct);

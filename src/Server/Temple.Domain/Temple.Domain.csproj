@@ -4,4 +4,5 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <!-- Removed explicit Compile Include to avoid duplicate; SDK implicitly includes .cs files -->
 </Project>

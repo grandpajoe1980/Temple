@@ -9,4 +9,7 @@ public class Lesson
     public string[] Tags { get; set; } = Array.Empty<string>();
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     public DateTime? PublishedUtc { get; set; }
+    public DateTime? UpdatedUtc { get; set; }
+    // When the lesson was last selected by automation (rotation / featured)
+    public DateTime? LastFeaturedUtc { get; set; }
 }

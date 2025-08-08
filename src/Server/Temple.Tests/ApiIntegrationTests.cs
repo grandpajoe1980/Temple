@@ -36,7 +36,8 @@ public class ApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
     public async Task Can_Create_And_Get_Tenant()
     {
         var client = _factory.CreateClient();
-        var created = await client.PostAsJsonAsync("/api/tenants", new TenantCreateRequest("Integration Tenant"));
+    // Updated signature requires TaxonomyId and optional ReligionId; pass nulls for simple creation in test
+    var created = await client.PostAsJsonAsync("/api/tenants", new TenantCreateRequest("Integration Tenant", null, null));
         created.EnsureSuccessStatusCode();
         var createdObj = await created.Content.ReadFromJsonAsync<TenantResponse>();
         Assert.NotNull(createdObj);
