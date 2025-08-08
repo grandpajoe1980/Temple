@@ -11,6 +11,9 @@
 | GET | /health | Liveness/health | None | K8s probe safe |
 | GET | /api/tenants/{id} | Fetch tenant basic info | Tenant-scoped | Returns 404 if not found |
 | POST | /api/tenants | Create tenant | Public (temp) | Slug auto-generated |
+| POST | /api/auth/register | User registration | Public | Simplified flow |
+| POST | /api/auth/login | Issue JWT | Public | |
+| GET | /api/users/me | Current profile | JWT | |
 
 ## Planned MVP Endpoints
 | Method | Path | Description | Auth Capability |

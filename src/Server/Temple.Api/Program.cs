@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -49,19 +50,39 @@ public partial class Program
 
     builder.Services.AddSingleton<JwtSecurityTokenHandler>();
 
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            var jwtOpts = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = !string.IsNullOrWhiteSpace(jwtOpts.Issuer),
+                ValidateAudience = !string.IsNullOrWhiteSpace(jwtOpts.Audience),
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtOpts.Issuer,
+                ValidAudience = jwtOpts.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOpts.Secret ?? "dev-secret-change"))
+            };
+        });
+
+    builder.Services.AddAuthorization();
+
     builder.Services.AddHostedService<SeedStartupData>();
 
         builder.Services.AddHealthChecks();
 
         var app = builder.Build();
 
-        // Ensure database is migrated before running hosted services that depend on schema
+        // Ensure database is initialized before running hosted services that depend on schema
         using (var scope = app.Services.CreateScope())
         {
             try
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.Database.Migrate();
+                if (useInMemory)
+                    db.Database.EnsureCreated();
+                else
+                    db.Database.Migrate();
             }
             catch (Exception ex)
             {
@@ -77,6 +98,8 @@ public partial class Program
         }
 
     app.UseCors("frontend");
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     // Friendly root redirect for UAT testers
     app.MapGet("/", () => Results.Redirect("/swagger"));
@@ -163,6 +186,17 @@ public partial class Program
                 signingCredentials: creds);
             var accessToken = tokenHandler.WriteToken(token);
             return Results.Ok(new { accessToken });
+        });
+
+        app.MapGet("/api/users/me", [Microsoft.AspNetCore.Authorization.Authorize] async (
+            ClaimsPrincipal user,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var idStr = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if (!Guid.TryParse(idStr, out var id)) return Results.Unauthorized();
+            var entity = await db.Users.FindAsync(new object?[] { id }, ct);
+            return entity is null ? Results.NotFound() : Results.Ok(new { id = entity.Id, email = entity.Email, tenantId = entity.TenantId });
         });
 
         app.Run();
