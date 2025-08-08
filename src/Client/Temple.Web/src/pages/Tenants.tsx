@@ -11,7 +11,6 @@ export default function Tenants() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const token = localStorage.getItem('token');
 
   useEffect(() => {
     // No list endpoint yet; placeholder
@@ -23,7 +22,7 @@ export default function Tenants() {
     try {
       const resp = await fetch('/api/tenants', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: `UAT Tenant ${Date.now()}` })
       });
       if (!resp.ok) throw new Error(await resp.text());
@@ -38,9 +37,8 @@ export default function Tenants() {
 
   return (
     <div>
-      {token && (
-        <button disabled={creating} onClick={createTenant}>{creating ? 'Creating...' : 'Create Tenant'}</button>
-      )}
+      <h2>Tenants</h2>
+      <button disabled={creating} onClick={createTenant}>{creating ? 'Creating...' : 'Create Tenant'}</button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <ul>
         {tenants.map(t => <li key={t.id}>{t.name} ({t.slug})</li>)}
