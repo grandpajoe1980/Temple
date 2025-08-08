@@ -56,6 +56,7 @@ More detail: `docs/ARCHITECTURE.md`.
 | GET | /api/tenants/{id} | Fetch tenant by id |
 | POST | /api/auth/register | Simplified user registration (auto-assigns first tenant) |
 | POST | /api/auth/login | Returns JWT access token |
+| GET | /api/users/me | Current user profile (requires auth) |
 
 Planned endpoints & versioning: see `docs/ROUTING.md`.
 
