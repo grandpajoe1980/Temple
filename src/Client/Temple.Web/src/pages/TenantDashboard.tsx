@@ -181,7 +181,7 @@ export default function TenantDashboard() {
               <div style={styles.actionIcon}>💝</div>
               <div style={styles.actionLabel}>Donations</div>
             </button>
-            <button style={styles.actionCard} onClick={() => alert('Settings feature coming soon!')}>
+            <button style={styles.actionCard} onClick={() => navigate(`/tenant/${slug}/settings`)}>
               <div style={styles.actionIcon}>⚙️</div>
               <div style={styles.actionLabel}>Settings</div>
             </button>

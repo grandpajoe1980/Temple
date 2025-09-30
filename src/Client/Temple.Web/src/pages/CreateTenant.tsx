@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Religion {
@@ -6,12 +6,20 @@ interface Religion {
   displayName: string;
 }
 
+interface Sect {
+  id: string;
+  displayName: string;
+}
+
 export default function CreateTenant() {
   const [name, setName] = useState('');
   const [religionId, setReligionId] = useState('');
+  const [taxonomyId, setTaxonomyId] = useState('');
   const [religions, setReligions] = useState<Religion[]>([]);
+  const [sects, setSects] = useState<Sect[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingReligions, setLoadingReligions] = useState(false);
+  const [loadingSects, setLoadingSects] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -37,6 +45,45 @@ export default function CreateTenant() {
     }
   }
 
+  async function loadSects(religionId: string) {
+    if (!religionId) {
+      setSects([]);
+      setTaxonomyId('');
+      return;
+    }
+
+    setLoadingSects(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) throw new Error('Authentication required');
+      
+      const resp = await fetch(`/api/v1/taxonomies/religions/${encodeURIComponent(religionId)}/sects`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!resp.ok) throw new Error('Failed to load sects');
+      const data = await resp.json();
+      setSects(data);
+      // Auto-select first sect if available
+      if (data.length > 0) {
+        setTaxonomyId(data[0].id);
+      }
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoadingSects(false);
+    }
+  }
+
+  useEffect(() => {
+    if (religionId) {
+      loadSects(religionId);
+    } else {
+      setSects([]);
+      setTaxonomyId('');
+    }
+  }, [religionId]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
@@ -52,7 +99,12 @@ export default function CreateTenant() {
       if (!token) throw new Error('Authentication required');
 
       const payload: any = { name: name.trim() };
-      if (religionId) payload.religionId = religionId;
+      // Send taxonomyId if a sect is selected, otherwise send religionId
+      if (taxonomyId) {
+        payload.taxonomyId = taxonomyId;
+      } else if (religionId) {
+        payload.religionId = religionId;
+      }
 
       const resp = await fetch('/api/v1/tenants', {
         method: 'POST',
@@ -124,6 +176,29 @@ export default function CreateTenant() {
             </select>
             {loadingReligions && <p style={styles.hint}>Loading religions...</p>}
           </div>
+
+          {religionId && (
+            <div style={styles.field}>
+              <label style={styles.label}>Denomination/Sect (Optional)</label>
+              <select
+                value={taxonomyId}
+                onChange={(e) => setTaxonomyId(e.target.value)}
+                disabled={loadingSects}
+                style={styles.select}
+              >
+                <option value="">Select a sect (optional)</option>
+                {sects.map(sect => (
+                  <option key={sect.id} value={sect.id}>
+                    {sect.displayName}
+                  </option>
+                ))}
+              </select>
+              {loadingSects && <p style={styles.hint}>Loading sects...</p>}
+              {!loadingSects && sects.length === 0 && (
+                <p style={styles.hint}>No specific denominations available for this religion.</p>
+              )}
+            </div>
+          )}
 
           {error && <div style={styles.error}>{error}</div>}
 
