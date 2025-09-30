@@ -1168,7 +1168,7 @@ public partial class Program
         {
             if (string.IsNullOrWhiteSpace(id)) return Results.BadRequest();
             var sects = await db.ReligionTaxonomies.Where(t => t.ParentId == id && t.Type == "sect")
-                .Select(t => new { t.Id, t.DisplayName })
+                .Select(t => new { t.Id, t.DisplayName, t.CanonicalTexts })
                 .OrderBy(t => t.DisplayName)
                 .ToListAsync(ct);
             return Results.Ok(sects);
