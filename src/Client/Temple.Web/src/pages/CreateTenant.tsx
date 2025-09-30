@@ -30,8 +30,8 @@ export default function CreateTenant() {
       if (!resp.ok) throw new Error('Failed to load religions');
       const data = await resp.json();
       setReligions(data);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setLoadingReligions(false);
     }
@@ -51,7 +51,7 @@ export default function CreateTenant() {
       const token = localStorage.getItem('auth_token');
       if (!token) throw new Error('Authentication required');
 
-      const payload: any = { name: name.trim() };
+      const payload: { name: string; religionId?: string } = { name: name.trim() };
       if (religionId) payload.religionId = religionId;
 
       const resp = await fetch('/api/v1/tenants', {
@@ -78,8 +78,8 @@ export default function CreateTenant() {
         }
       });
       
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

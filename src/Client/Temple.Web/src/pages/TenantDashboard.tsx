@@ -30,6 +30,7 @@ export default function TenantDashboard() {
       return;
     }
     loadTenantData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   async function loadTenantData() {
@@ -68,8 +69,8 @@ export default function TenantDashboard() {
         activeChannels: 0
       });
 
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

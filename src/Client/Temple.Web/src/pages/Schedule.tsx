@@ -47,8 +47,8 @@ export default function Schedule() {
       const data = await resp.json();
       setEvents(data.data || []);
 
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -91,8 +91,8 @@ export default function Schedule() {
       setShowCreateForm(false);
       loadEvents(); // Reload the data
       
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setCreating(false);
     }
@@ -114,8 +114,8 @@ export default function Schedule() {
       
       loadEvents(); // Reload the data
       
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     }
   }
 

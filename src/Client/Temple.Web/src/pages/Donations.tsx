@@ -57,8 +57,8 @@ export default function Donations() {
       const summaryData = await summaryResp.json();
       setSummary(summaryData);
 
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -94,8 +94,8 @@ export default function Donations() {
       setNewDonation({ amount: '', recurring: false });
       loadData(); // Reload the data
       
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setCreating(false);
     }

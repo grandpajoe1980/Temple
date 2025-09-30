@@ -32,6 +32,7 @@ export default function People() {
 
   useEffect(() => {
     loadPeople();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   async function loadPeople() {
@@ -55,8 +56,8 @@ export default function People() {
       const data = await resp.json();
       setPeople(data.data || []);
 
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -72,7 +73,14 @@ export default function People() {
       const token = localStorage.getItem('auth_token');
       if (!token) throw new Error('Authentication required');
       
-      const payload: any = {
+      const payload: {
+        firstName: string;
+        lastName: string;
+        status: string;
+        email?: string;
+        phone?: string;
+        birthDate?: string;
+      } = {
         firstName: newPerson.firstName,
         lastName: newPerson.lastName,
         status: newPerson.status
@@ -104,8 +112,8 @@ export default function People() {
       setShowCreateForm(false);
       loadPeople(); // Reload the data
       
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setCreating(false);
     }
@@ -129,8 +137,8 @@ export default function People() {
       
       loadPeople(); // Reload the data
       
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     }
   }
 
