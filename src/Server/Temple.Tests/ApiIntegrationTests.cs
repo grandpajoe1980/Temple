@@ -37,11 +37,11 @@ public class ApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
     {
         var client = _factory.CreateClient();
     // Updated signature requires TaxonomyId and optional ReligionId; pass nulls for simple creation in test
-    var created = await client.PostAsJsonAsync("/api/tenants", new TenantCreateRequest("Integration Tenant", null, null));
+    var created = await client.PostAsJsonAsync("/api/v1/tenants", new TenantCreateRequest("Integration Tenant", null, null));
         created.EnsureSuccessStatusCode();
         var createdObj = await created.Content.ReadFromJsonAsync<TenantResponse>();
         Assert.NotNull(createdObj);
-        var get = await client.GetAsync($"/api/tenants/{createdObj!.Id}");
+        var get = await client.GetAsync($"/api/v1/tenants/{createdObj!.Id}");
         get.EnsureSuccessStatusCode();
     }
 
