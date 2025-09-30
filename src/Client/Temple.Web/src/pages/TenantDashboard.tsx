@@ -163,19 +163,19 @@ export default function TenantDashboard() {
           <div style={styles.actionGrid}>
             <button style={styles.actionCard} onClick={() => navigate(`/tenant/${slug}/schedule`)}>
               <div style={styles.actionIcon}>📅</div>
-              <div style={styles.actionLabel}>Manage Schedule</div>
+              <div style={styles.actionLabel}>Calendar & Events</div>
             </button>
             <button style={styles.actionCard} onClick={() => navigate(`/tenant/${slug}/people`)}>
               <div style={styles.actionIcon}>👥</div>
               <div style={styles.actionLabel}>Manage People</div>
             </button>
-            <button style={styles.actionCard} onClick={() => alert('Content feature coming soon!')}>
-              <div style={styles.actionIcon}>📚</div>
-              <div style={styles.actionLabel}>Content Library</div>
+            <button style={styles.actionCard} onClick={() => navigate(`/tenant/${slug}/media`)}>
+              <div style={styles.actionIcon}>🎬</div>
+              <div style={styles.actionLabel}>Media & Podcasts</div>
             </button>
-            <button style={styles.actionCard} onClick={() => alert('Chat feature coming soon!')}>
+            <button style={styles.actionCard} onClick={() => navigate(`/tenant/${slug}/chat`)}>
               <div style={styles.actionIcon}>💬</div>
-              <div style={styles.actionLabel}>Chat Channels</div>
+              <div style={styles.actionLabel}>Message Board</div>
             </button>
             <button style={styles.actionCard} onClick={() => navigate(`/tenant/${slug}/donations`)}>
               <div style={styles.actionIcon}>💝</div>

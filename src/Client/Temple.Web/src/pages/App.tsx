@@ -7,6 +7,8 @@ import TenantDashboard from './TenantDashboard';
 import Donations from './Donations';
 import Schedule from './Schedule';
 import People from './People';
+import Chat from './Chat';
+import Media from './Media';
 
 function isAuthenticated() {
   return !!localStorage.getItem('auth_token');
@@ -46,6 +48,8 @@ export default function App() {
         <Route path="/tenant/:slug/donations" element={<ProtectedRoute><Donations /></ProtectedRoute>} />
         <Route path="/tenant/:slug/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
         <Route path="/tenant/:slug/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
+        <Route path="/tenant/:slug/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+        <Route path="/tenant/:slug/media" element={<ProtectedRoute><Media /></ProtectedRoute>} />
       </Routes>
     </div>
   );
