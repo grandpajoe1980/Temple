@@ -154,7 +154,30 @@ Milestone 2: Chat (general + announcements) + Donations (Stripe) + Notifications
 Milestone 3: Automation engine + Daily content + Media upload (audio) + Recurrence & role matrix UI.
 Further milestones: media transcoding, analytics, marketplace (see `docs/ROADMAP.md`).
 
-## 11. Next Engineering Steps (Short List)
+## 11. Testing
+
+The project follows a test-driven development approach with comprehensive test coverage:
+
+### Test Organization
+- **Unit Tests**: Domain entities, value objects, and business logic (`Temple.Tests/Domain/`)
+- **Integration Tests**: API endpoints and full HTTP pipeline (`Temple.Tests/Integration/`)
+- **Auth Tests**: Authentication and authorization flows (`Temple.Tests/Auth/`)
+
+### Running Tests
+```bash
+cd src/Server
+dotnet test
+```
+
+### Test Statistics
+- **Total Tests**: 41
+- **Passing**: 40
+- **Skipped**: 1
+- **Framework**: xUnit with WebApplicationFactory
+
+See `docs/TESTING.md` for detailed testing guidelines and best practices.
+
+## 12. Next Engineering Steps (Short List)
 - [ ] EF Core migrations (baseline snapshot) & auto-apply dev
 - [ ] Identity hardening (password policy, email confirmation)
 - [ ] Tenant slug resolution middleware + header/subdomain strategy
@@ -163,13 +186,14 @@ Further milestones: media transcoding, analytics, marketplace (see `docs/ROADMAP
 - [ ] Hangfire setup + DailyContentRotation recurring job stub
 - [ ] Capability-based authorization policies wired to endpoints
 - [ ] Compose extension: add API service container + migration init step
-- [ ] Integration + unit tests for tenant & auth flows (JWT issuance, slug collision)
-- [ ] GitHub Actions (build, test, security scanning, formatting) CI pipeline
+- [x] Integration + unit tests for tenant & auth flows (JWT issuance, slug collision)
+- [x] GitHub Actions (build, test, security scanning, formatting) CI pipeline
 - [ ] Add OpenAPI document augmentation & client generation script
+- [ ] Add code coverage reporting and badges
 
 Progress Legend: ☐ not started | ◔ in progress | ✔ done (update as tasks advance).
 
-## 12. Machine-Readable Metadata (Draft JSON)
+## 13. Machine-Readable Metadata (Draft JSON)
 ```json
 {
 	"name": "Temple",

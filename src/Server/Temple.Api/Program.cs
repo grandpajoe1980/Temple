@@ -30,8 +30,10 @@ using System.Threading.RateLimiting;
 using Temple.Application.Identity;
 using Temple.Infrastructure.Temple.Identity;
 using Hangfire;
+using Hangfire.Common;
 using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
+using Hangfire.States;
 using Temple.Application.Automation;
 using Temple.Infrastructure.Temple.Automation;
 using Temple.Application.Scheduling;
@@ -81,7 +83,6 @@ public partial class Program
     builder.Services.AddScoped<IAuditWriter, AuditWriter>();
     builder.Services.AddScoped<IDailyContentRotationJob, DailyContentRotationJob>();
     builder.Services.AddScoped<ILessonRotationJob, LessonRotationJob>();
-    builder.Services.AddScoped<IEventReminderScheduler, EventReminderScheduler>();
     builder.Services.AddScoped<ICapabilityHashRegenerator, CapabilityHashRegenerator>();
     builder.Services.AddScoped<ICapabilityHashProvider, CapabilityHashProvider>();
 
@@ -100,6 +101,13 @@ public partial class Program
                   }); // Configure persistent storage so JobStorage is initialized
         });
         builder.Services.AddHangfireServer();
+        builder.Services.AddScoped<IEventReminderScheduler, EventReminderScheduler>();
+    }
+    else
+    {
+        // In test mode, register a no-op background job client
+        builder.Services.AddScoped<IBackgroundJobClient>(_ => new NoOpBackgroundJobClient());
+        builder.Services.AddScoped<IEventReminderScheduler, EventReminderScheduler>();
     }
 
     // Redis (best-effort) for caching / future presence
@@ -2905,4 +2913,13 @@ public class SeedStartupData : IHostedService
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+}
+
+/// <summary>
+/// No-op implementation of IBackgroundJobClient for testing purposes.
+/// </summary>
+public sealed class NoOpBackgroundJobClient : IBackgroundJobClient
+{
+    public string Create(Job job, IState state) => Guid.NewGuid().ToString();
+    public bool ChangeState(string jobId, IState state, string expectedState) => true;
 }
