@@ -72,7 +72,7 @@ A multi-tenant, religion-agnostic community & communications platform supporting
 | Auth | ASP.NET Core Identity (phase 1) | Speed, later externalize |
 | Payments | Stripe | Robust donation/billing |
 | Jobs | Hangfire | Dashboard + persistence |
-| Infra | Docker + Terraform | Portability & reproducibility |
+| Infra | Terraform | Portability & reproducibility |
 | IaC Cloud | AWS (phase 1) | Broad service support |
 
 ## Multi-Tenant Data Model (Sketch)

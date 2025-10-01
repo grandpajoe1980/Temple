@@ -17,7 +17,6 @@ Temple aims to provide any faith community (church, temple, synagogue, monastery
 ```
 temple/
 	README.md                <- This file
-	docker-compose.yml       <- (future) service orchestration (db, redis, api)
 	docs/                    <- Architecture, roadmap, decisions, models, routing
 	seed/                    <- Seed taxonomy / terminology JSON (planned expansion)
 	src/Server/              <- .NET backend solution (modular monolith layout)
@@ -63,7 +62,7 @@ Planned endpoints & versioning: see `docs/ROUTING.md`.
 ## 5. Running the Backend (Local)
 ### 5.1 Prerequisites
 - .NET 8 SDK (or later preview if required by solution)
-- PostgreSQL 15+ running locally OR Docker
+- PostgreSQL 15+ running locally
 
 ### 5.2 Quick Start (Using Local PostgreSQL)
 1. Ensure a Postgres database is available and note connection string (default expects `Host=localhost;Database=temple;Username=postgres;Password=postgres`).
@@ -76,26 +75,7 @@ dotnet run --project .\Temple.Api\Temple.Api.csproj
 3. Navigate to Swagger UI (development only): http://localhost:5000/swagger
 4. Health check: http://localhost:5000/health
 
-### 5.3 Quick Start (Docker Compose – Postgres + Redis)
-`docker-compose.yml` already provides Postgres 16 + Redis 7 (no API container yet):
-
-```powershell
-docker compose up -d
-```
-
-Then run the API against the started Postgres instance (leave Redis running for future features). To stop:
-
-```powershell
-docker compose down
-```
-
-To remove persistent volume:
-
-```powershell
-docker compose down -v
-```
-
-### 5.4 Configuration
+### 5.3 Configuration
 Configuration precedence: Environment Variables > `appsettings.Development.json` > defaults (hard-coded fallbacks – dev only).
 
 | ENV / Key | Purpose | Default (dev) | Required For | Notes |
@@ -129,7 +109,7 @@ Example `appsettings.Development.json` snippet:
 }
 ```
 
-### 5.5 Basic Usage Flow
+### 5.4 Basic Usage Flow
 1. Create tenant: `POST /api/tenants { "name": "Community Name" }`
 2. Register user: `POST /api/auth/register { "email": "user@example.com", "password": "Passw0rd!" }`
 3. Login: `POST /api/auth/login { "email": "user@example.com", "password": "Passw0rd!" }` => receive `accessToken`.
@@ -162,7 +142,7 @@ Further milestones: media transcoding, analytics, marketplace (see `docs/ROADMAP
 - [ ] Stripe donation provider skeleton + provider interface contract
 - [ ] Hangfire setup + DailyContentRotation recurring job stub
 - [ ] Capability-based authorization policies wired to endpoints
-- [ ] Compose extension: add API service container + migration init step
+
 - [ ] Integration + unit tests for tenant & auth flows (JWT issuance, slug collision)
 - [ ] GitHub Actions (build, test, security scanning, formatting) CI pipeline
 - [ ] Add OpenAPI document augmentation & client generation script
