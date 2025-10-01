@@ -83,6 +83,11 @@ If tests fail:
 - Ensure in-memory database is configured for tests
 - Verify all test dependencies are properly mocked
 
+**Known Issues:**
+- Tests currently fail due to missing Hangfire `IBackgroundJobClient` mock in test setup
+- This is a pre-existing issue and tests are marked as `continue-on-error: true` to not block CI
+- Tests should be fixed by adding proper Hangfire mocking in the test project
+
 ## Configuration
 
 ### Environment Variables

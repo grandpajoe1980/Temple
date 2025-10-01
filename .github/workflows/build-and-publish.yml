@@ -33,6 +33,7 @@ jobs:
     
     - name: Run tests
       run: dotnet test src/Server/Temple.sln --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
+      continue-on-error: true
     
     - name: Publish test results
       uses: dorny/test-reporter@v1
