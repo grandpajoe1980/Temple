@@ -1,7 +1,6 @@
 param(
     [int]$ApiPort = 5005,
-    [int]$FrontendPort = 5173,
-    [switch]$NoDocker
+    [int]$FrontendPort = 5173
 )
 
 Write-Host "[start-dev] Starting Temple dev environment..." -ForegroundColor Cyan
@@ -10,19 +9,7 @@ function Fail($msg) {
     Write-Error "[start-dev][FAIL] $msg"; exit 1
 }
 
-# 1. Ensure Docker services (Postgres, Redis) are running unless suppressed
-if(-not $NoDocker) {
-    if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-        Fail "Docker not found on PATH. Install Docker Desktop or pass -NoDocker to skip."
-    }
-    Write-Host "[start-dev] Bringing up docker compose services (postgres, redis)..." -ForegroundColor Yellow
-    pushd "$PSScriptRoot\.." | Out-Null
-    docker compose up -d postgres redis 2>$null | Out-Null
-    if($LASTEXITCODE -ne 0){ Fail "docker compose up failed" }
-    popd | Out-Null
-}
-
-# 2. Wait for Postgres to accept connections (simple retry on port)
+# 1. Wait for Postgres to accept connections (simple retry on port)
 $pgReady = $false
 for($i=1; $i -le 20; $i++){
     try {
@@ -37,7 +24,7 @@ for($i=1; $i -le 20; $i++){
 if(-not $pgReady){ Fail "Postgres not reachable on 5432 after timeout" }
 Write-Host "[start-dev] Postgres reachable." -ForegroundColor Green
 
-# 3. Start API (dotnet) in background
+# 2. Start API (dotnet) in background
 $apiPath = Join-Path $PSScriptRoot "..\src\Server\Temple.Api"
 if(-not (Test-Path (Join-Path $apiPath 'Temple.Api.csproj'))){ Fail "API project not found at $apiPath" }
 Write-Host "[start-dev] Ensuring no previous API instance is running..." -ForegroundColor DarkGray
@@ -46,7 +33,7 @@ Write-Host "[start-dev] Starting API on port $ApiPort..." -ForegroundColor Yello
 $apiLog = Join-Path $PSScriptRoot "api.log"
 Start-Process powershell -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-Command',"cd `"$apiPath`"; dotnet run --urls http://localhost:$ApiPort *>$apiLog") -WindowStyle Hidden
 
-# 4. Wait for API health
+# 3. Wait for API health
 $apiHealthy=$false
 for($i=1;$i -le 40;$i++){
     try {
@@ -62,7 +49,7 @@ if(-not $apiHealthy){
 }
 Write-Host "[start-dev] API healthy at http://localhost:$ApiPort" -ForegroundColor Green
 
-# 5. Frontend install deps if needed & start
+# 4. Frontend install deps if needed & start
 $webPath = Join-Path $PSScriptRoot "..\src\Client\Temple.Web"
 if(-not (Test-Path (Join-Path $webPath 'package.json'))){ Fail "Frontend package.json not found at $webPath" }
 if(-not (Test-Path (Join-Path $webPath 'node_modules'))){
@@ -76,7 +63,7 @@ Write-Host "[start-dev] Starting frontend (Vite) on port $FrontendPort..." -Fore
 $feLog = Join-Path $PSScriptRoot "frontend.log"
 Start-Process powershell -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-Command',"cd `"$webPath`"; npm run dev *>$feLog") -WindowStyle Hidden
 
-# 6. Wait for Vite dev server
+# 5. Wait for Vite dev server
 $feReady=$false
 for($i=1;$i -le 40;$i++){
     try {
@@ -92,7 +79,7 @@ if(-not $feReady){
 }
 Write-Host "[start-dev] Frontend ready at http://localhost:$FrontendPort" -ForegroundColor Green
 
-# 7. Summary
+# 6. Summary
 Write-Host "[start-dev] All services started successfully." -ForegroundColor Cyan
 Write-Host " API:      http://localhost:$ApiPort" -ForegroundColor DarkCyan
 Write-Host " Frontend: http://localhost:$FrontendPort" -ForegroundColor DarkCyan
