@@ -1,7 +1,7 @@
 param(
     [int]$ApiPort = 5005,
     [int]$FrontendPort = 5173,
-    [switch]$NoDocker
+    [switch]$UseDocker
 )
 
 Write-Host "[start-dev] Starting Temple dev environment..." -ForegroundColor Cyan
@@ -10,10 +10,10 @@ function Fail($msg) {
     Write-Error "[start-dev][FAIL] $msg"; exit 1
 }
 
-# 1. Ensure Docker services (Postgres, Redis) are running unless suppressed
-if(-not $NoDocker) {
+# 1. Optionally start Docker services (Postgres, Redis) if requested
+if($UseDocker) {
     if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-        Fail "Docker not found on PATH. Install Docker Desktop or pass -NoDocker to skip."
+        Fail "Docker not found on PATH. Install Docker Desktop or run without -UseDocker flag for local postgres."
     }
     Write-Host "[start-dev] Bringing up docker compose services (postgres, redis)..." -ForegroundColor Yellow
     pushd "$PSScriptRoot\.." | Out-Null
