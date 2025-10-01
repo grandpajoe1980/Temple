@@ -66,7 +66,7 @@ Planned endpoints & versioning: see `docs/ROUTING.md`.
 - PostgreSQL 15+ running locally OR Docker
 
 ### 5.2 Quick Start (Using Local PostgreSQL)
-1. Ensure a Postgres database is available and note connection string (default expects `Host=localhost;Database=temple;Username=postgres;Password=postgres`).
+1. Ensure a Postgres database is available and note connection string (default expects `Host=localhost;Database=temple;Username=temple_user;Password=temple_password`).
 2. From repository root:
 ```powershell
 cd src/Server
@@ -100,7 +100,7 @@ Configuration precedence: Environment Variables > `appsettings.Development.json`
 
 | ENV / Key | Purpose | Default (dev) | Required For | Notes |
 |-----------|---------|---------------|--------------|-------|
-| ConnectionStrings__Postgres | EF Core connection | Host=localhost;Database=temple;Username=postgres;Password=postgres | API | Use strong password outside dev |
+| ConnectionStrings__Postgres | EF Core connection | Host=localhost;Database=temple;Username=temple_user;Password=temple_password | API | Use strong password outside dev |
 | Jwt__Secret | HMAC signing key | dev-secret-change | Auth | Must be 32+ chars in non-dev |
 | Jwt__Issuer | Token issuer | temple.local | Auth | Match Audience for simple setups |
 | Jwt__Audience | Token audience | temple.clients | Auth | Distinguish internal/public later |
@@ -109,7 +109,7 @@ Configuration precedence: Environment Variables > `appsettings.Development.json`
 Example PowerShell (session only):
 
 ```powershell
-$env:ConnectionStrings__Postgres = "Host=localhost;Database=temple;Username=postgres;Password=postgres"
+$env:ConnectionStrings__Postgres = "Host=localhost;Database=temple;Username=temple_user;Password=temple_password"
 $env:Jwt__Secret = "replace-with-long-random"
 ```
 
@@ -118,7 +118,7 @@ Example `appsettings.Development.json` snippet:
 ```jsonc
 {
 	"ConnectionStrings": {
-		"Postgres": "Host=localhost;Database=temple;Username=postgres;Password=postgres"
+		"Postgres": "Host=localhost;Database=temple;Username=temple_user;Password=temple_password"
 	},
 	"Jwt": {
 		"Secret": "dev-secret-change",

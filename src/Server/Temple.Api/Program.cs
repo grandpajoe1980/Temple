@@ -67,7 +67,7 @@ public partial class Program
             }
             else
             {
-                o.UseNpgsql(builder.Configuration.GetConnectionString("Postgres") ?? "Host=localhost;Database=temple;Username=postgres;Password=postgres");
+                o.UseNpgsql(builder.Configuration.GetConnectionString("Postgres") ?? "Host=localhost;Database=temple;Username=temple_user;Password=temple_password");
             }
         });
 
@@ -90,7 +90,7 @@ public partial class Program
     {
         builder.Services.AddHangfire(config =>
         {
-            var cs = builder.Configuration.GetConnectionString("Postgres") ?? "Host=localhost;Database=temple;Username=postgres;Password=postgres";
+            var cs = builder.Configuration.GetConnectionString("Postgres") ?? "Host=localhost;Database=temple;Username=temple_user;Password=temple_password";
             config.UseSimpleAssemblyNameTypeSerializer()
                   .UseRecommendedSerializerSettings()
                   .UsePostgreSqlStorage(opts =>

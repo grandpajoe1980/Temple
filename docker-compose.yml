@@ -4,8 +4,8 @@ services:
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: temple_user
+      POSTGRES_PASSWORD: temple_password
       POSTGRES_DB: temple
     ports:
       - "5432:5432"
