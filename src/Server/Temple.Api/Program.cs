@@ -36,6 +36,7 @@ using Temple.Application.Automation;
 using Temple.Infrastructure.Temple.Automation;
 using Temple.Application.Scheduling;
 using Temple.Infrastructure.Temple.Scheduling;
+using Moq;
 
 public record TenantUpdateRequest(string? Name, string? TaxonomyId, string? Status);
 public record TenantSettingsDto(Guid Id, string Name, string Slug, string Status, string? TaxonomyId, IReadOnlyDictionary<string,string>? Terminology);
@@ -100,6 +101,11 @@ public partial class Program
                   }); // Configure persistent storage so JobStorage is initialized
         });
         builder.Services.AddHangfireServer();
+    }
+    else
+    {
+        // Register mock IBackgroundJobClient for in-memory mode (tests)
+        builder.Services.AddSingleton<IBackgroundJobClient>(new Mock<IBackgroundJobClient>().Object);
     }
 
     // Redis (best-effort) for caching / future presence
