@@ -41,8 +41,8 @@ export default function Tenants() {
       if (!resp.ok) throw new Error('Failed to load tenants');
       const data = await resp.json();
       setTenants(Array.isArray(data) ? data : []);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

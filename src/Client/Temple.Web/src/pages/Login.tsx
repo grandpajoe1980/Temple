@@ -27,8 +27,8 @@ export default function Login() {
       localStorage.setItem('auth_token', json.accessToken);
       // Redirect to home page after successful login
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Unknown error');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
@@ -45,9 +45,9 @@ export default function Login() {
       });
       if (!resp.ok) throw new Error(`Register failed: ${resp.status}`);
       // After register, trigger login
-      await submit(new Event('submit') as any);
-    } catch (err: any) {
-      setError(err.message || 'Unknown error');
+      await submit(new Event('submit') as React.FormEvent);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
       setLoading(false);
     }
   }
@@ -63,8 +63,8 @@ export default function Login() {
       localStorage.setItem('auth_token', json.accessToken);
       // Redirect to home page after successful guest access
       navigate('/');
-    } catch (e: any) {
-      setError(e.message || 'Unknown error');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Unknown error');
     } finally {
       setLoading(false);
     }

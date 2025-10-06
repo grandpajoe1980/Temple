@@ -38,8 +38,8 @@ export default function Home() {
       if (!resp.ok) throw new Error('Search failed');
       const t = await resp.json();
       setResult(t);
-    } catch (err: any) {
-      setError(err.message || 'Unknown error');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
