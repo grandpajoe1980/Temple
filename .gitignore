@@ -46,3 +46,4 @@ wwwroot/
 *.webm
 *.wav
 *.mp3
+prisma/dev.db
