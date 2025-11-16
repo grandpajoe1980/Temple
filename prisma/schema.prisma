@@ -1,0 +1,340 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String                  @id @default(cuid())
+  email           String                  @unique
+  passwordHash    String
+  isSuperAdmin    Boolean                 @default(false)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  profile         UserProfile?
+  privacySettings UserPrivacySettings?
+  memberships     UserTenantMembership[]
+  posts           Post[]                  @relation("PostAuthor")
+  comments        PostComment[]
+  reactions       PostReaction[]
+  mediaItems      MediaItem[]
+  events          Event[]                 @relation("EventCreator")
+  eventRsvps      EventRSVP[]
+  notifications   Notification[]
+  notificationPreference NotificationPreference?
+  conversations   Conversation[]          @relation("ConversationCreator")
+  messages        Message[]
+  passwordResets  PasswordResetToken[]
+  conversationParticipants ConversationParticipant[]
+  messageReadReceipts MessageReadReceipt[]
+  messageReactions MessageReaction[]
+  createdTenants  Tenant[]                @relation("TenantCreator")
+}
+
+model UserProfile {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  displayName       String?
+  avatarUrl         String?
+  bio               String?
+  locationCity      String?
+  locationCountry   String?
+  languagesJson     String? // JSON string storing languages array
+  publicFieldsJson  String? // JSON string storing visibility config
+  user              User    @relation(fields: [userId], references: [id])
+}
+
+model UserPrivacySettings {
+  id               String  @id @default(cuid())
+  userId           String  @unique
+  showAffiliations Boolean @default(true)
+  user             User    @relation(fields: [userId], references: [id])
+}
+
+model Tenant {
+  id               String                @id @default(cuid())
+  name             String
+  slug             String                @unique
+  creed            String
+  addressLine1     String?
+  city             String
+  state            String?
+  country          String
+  postalCode       String?
+  timeZone         String
+  defaultLanguage  String?
+  description      String?
+  isActive         Boolean               @default(true)
+  createdByUserId  String
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  createdBy        User                  @relation("TenantCreator", fields: [createdByUserId], references: [id])
+  branding         TenantBranding?
+  settings         TenantSettings?
+  featurePermissions TenantFeaturePermissions[]
+  memberships      UserTenantMembership[]
+  posts            Post[]
+  mediaItems       MediaItem[]
+  events           Event[]
+  conversations    Conversation[]
+  notifications    Notification[]
+}
+
+model TenantBranding {
+  id              String  @id @default(cuid())
+  tenantId        String  @unique
+  logoUrl         String?
+  bannerImageUrl  String?
+  primaryColor    String?
+  accentColor     String?
+  customLinksJson String?
+  tenant          Tenant  @relation(fields: [tenantId], references: [id])
+}
+
+model TenantSettings {
+  id                       String   @id @default(cuid())
+  tenantId                 String   @unique
+  isPublic                 Boolean  @default(true)
+  enableCalendar           Boolean  @default(true)
+  enablePosts              Boolean  @default(true)
+  enableSermons            Boolean  @default(true)
+  enablePodcasts           Boolean  @default(true)
+  enableBooks              Boolean  @default(true)
+  enableMemberDirectory    Boolean  @default(true)
+  enableGroupChat          Boolean  @default(true)
+  enableComments           Boolean  @default(true)
+  enableReactions          Boolean  @default(true)
+  membershipApprovalMode   String   @default("OPEN")
+  visibleToVisitorsJson    String?
+  tenant                   Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model TenantFeaturePermissions {
+  id                   String   @id @default(cuid())
+  tenantId             String
+  roleType             String
+  canCreatePosts       Boolean  @default(false)
+  canCreateEvents      Boolean  @default(false)
+  canCreateSermons     Boolean  @default(false)
+  canCreatePodcasts    Boolean  @default(false)
+  canCreateBooks       Boolean  @default(false)
+  canCreateGroupChats  Boolean  @default(false)
+  canInviteMembers     Boolean  @default(false)
+  canApproveMembership Boolean  @default(false)
+  canModerateContent   Boolean  @default(false)
+  tenant               Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, roleType])
+}
+
+model UserTenantMembership {
+  id          String  @id @default(cuid())
+  userId      String
+  tenantId    String
+  status      String  @default("REQUESTED")
+  joinedAt    DateTime? @default(now())
+  roles       UserTenantRole[]
+  user        User    @relation(fields: [userId], references: [id])
+  tenant      Tenant  @relation(fields: [tenantId], references: [id])
+
+  @@unique([userId, tenantId])
+}
+
+model UserTenantRole {
+  id           String     @id @default(cuid())
+  membershipId String
+  role         String
+  displayTitle String?
+  isPrimary    Boolean    @default(false)
+  membership   UserTenantMembership @relation(fields: [membershipId], references: [id])
+}
+
+model Post {
+  id           String   @id @default(cuid())
+  tenantId     String
+  authorUserId String
+  type         String
+  title        String
+  body         String
+  tagsJson     String?
+  isPublished  Boolean  @default(true)
+  publishedAt  DateTime? @default(now())
+  visibility   String   @default("PUBLIC")
+  pinned       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  author       User     @relation("PostAuthor", fields: [authorUserId], references: [id])
+  comments     PostComment[]
+  reactions    PostReaction[]
+}
+
+model PostComment {
+  id           String   @id @default(cuid())
+  postId       String
+  authorUserId String
+  body         String
+  createdAt    DateTime @default(now())
+  isDeleted    Boolean  @default(false)
+  post         Post     @relation(fields: [postId], references: [id])
+  author       User     @relation(fields: [authorUserId], references: [id])
+}
+
+model PostReaction {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  type      String   @default("LIKE")
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId, type])
+}
+
+model MediaItem {
+  id           String   @id @default(cuid())
+  tenantId     String
+  authorUserId String
+  type         String
+  title        String
+  description  String?
+  embedUrl     String
+  externalId   String?
+  tagsJson     String?
+  publishedAt  DateTime? @default(now())
+  visibility   String   @default("PUBLIC")
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  author       User     @relation(fields: [authorUserId], references: [id])
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  tenantId       String
+  createdByUserId String
+  title          String
+  description    String?
+  startDateTime  DateTime
+  endDateTime    DateTime
+  locationText   String?
+  isOnline       Boolean  @default(false)
+  onlineUrl      String?
+  category       String   @default("GENERAL")
+  visibility     String   @default("PUBLIC")
+  recurrenceRule String?
+  createdAt      DateTime @default(now())
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  createdBy      User     @relation("EventCreator", fields: [createdByUserId], references: [id])
+  rsvps          EventRSVP[]
+}
+
+model EventRSVP {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  status    String   @default("GOING")
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
+}
+
+model Conversation {
+  id              String    @id @default(cuid())
+  isDirect        Boolean   @default(false)
+  tenantId        String?
+  isPrivateGroup  Boolean   @default(false)
+  createdByUserId String
+  name            String?
+  isDefaultChannel Boolean  @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  tenant          Tenant?   @relation(fields: [tenantId], references: [id])
+  createdBy       User      @relation("ConversationCreator", fields: [createdByUserId], references: [id])
+  participants    ConversationParticipant[]
+  messages        Message[]
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  role           String   @default("PARTICIPANT")
+  joinedAt       DateTime @default(now())
+  isMuted        Boolean  @default(false)
+  isBanned       Boolean  @default(false)
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id              String   @id @default(cuid())
+  conversationId  String
+  senderUserId    String
+  body            String
+  createdAt       DateTime @default(now())
+  isDeleted       Boolean  @default(false)
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
+  sender          User         @relation(fields: [senderUserId], references: [id])
+  readReceipts    MessageReadReceipt[]
+  reactions       MessageReaction[]
+}
+
+model MessageReadReceipt {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  readAt    DateTime @default(now())
+  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
+}
+
+model MessageReaction {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  type      String
+  createdAt DateTime @default(now())
+  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String
+  entityType String?
+  entityId   String?
+  tenantId   String?
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  tenant     Tenant?  @relation(fields: [tenantId], references: [id])
+}
+
+model NotificationPreference {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  emailOnNewDM        Boolean @default(true)
+  emailOnAnnouncements Boolean @default(true)
+  emailOnEvents       Boolean @default(true)
+  emailOnComments     Boolean @default(false)
+  user                User    @relation(fields: [userId], references: [id])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  user      User     @relation(fields: [userId], references: [id])
+}
