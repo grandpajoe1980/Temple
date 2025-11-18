@@ -4,6 +4,7 @@ import Home from './Home';
 import Login from './Login';
 import CreateTenant from './CreateTenant';
 import TenantDashboard from './TenantDashboard';
+import TenantSettings from './TenantSettings';
 import Donations from './Donations';
 import Schedule from './Schedule';
 import People from './People';
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/tenants" element={<ProtectedRoute><Tenants /></ProtectedRoute>} />
         <Route path="/tenants/create" element={<ProtectedRoute><CreateTenant /></ProtectedRoute>} />
         <Route path="/tenant/:slug" element={<ProtectedRoute><TenantDashboard /></ProtectedRoute>} />
+        <Route path="/tenant/:slug/settings" element={<ProtectedRoute><TenantSettings /></ProtectedRoute>} />
         <Route path="/tenant/:slug/donations" element={<ProtectedRoute><Donations /></ProtectedRoute>} />
         <Route path="/tenant/:slug/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
         <Route path="/tenant/:slug/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
