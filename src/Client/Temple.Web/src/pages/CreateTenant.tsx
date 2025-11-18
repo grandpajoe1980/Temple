@@ -6,12 +6,23 @@ interface Religion {
   displayName: string;
 }
 
+interface Sect {
+  id: string;
+  displayName: string;
+  canonicalTexts: string[];
+}
+
 export default function CreateTenant() {
   const [name, setName] = useState('');
   const [religionId, setReligionId] = useState('');
+  const [sectId, setSectId] = useState('');
+  const [selectedCanonicalTexts, setSelectedCanonicalTexts] = useState<string[]>([]);
   const [religions, setReligions] = useState<Religion[]>([]);
+  const [sects, setSects] = useState<Sect[]>([]);
+  const [availableTexts, setAvailableTexts] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingReligions, setLoadingReligions] = useState(false);
+  const [loadingSects, setLoadingSects] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -37,6 +48,62 @@ export default function CreateTenant() {
     }
   }
 
+  async function loadSects(religionIdToLoad: string) {
+    if (!religionIdToLoad) {
+      setSects([]);
+      setSectId('');
+      setAvailableTexts([]);
+      setSelectedCanonicalTexts([]);
+      return;
+    }
+    
+    setLoadingSects(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) throw new Error('Authentication required');
+      
+      const resp = await fetch(`/api/v1/taxonomies/religions/${religionIdToLoad}/sects`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!resp.ok) throw new Error('Failed to load sects');
+      const data = await resp.json();
+      setSects(data);
+      setSectId('');
+      setAvailableTexts([]);
+      setSelectedCanonicalTexts([]);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoadingSects(false);
+    }
+  }
+
+  function handleReligionChange(newReligionId: string) {
+    setReligionId(newReligionId);
+    loadSects(newReligionId);
+  }
+
+  function handleSectChange(newSectId: string) {
+    setSectId(newSectId);
+    const selectedSect = sects.find(s => s.id === newSectId);
+    if (selectedSect && selectedSect.canonicalTexts) {
+      setAvailableTexts(selectedSect.canonicalTexts);
+      setSelectedCanonicalTexts(selectedSect.canonicalTexts); // Pre-select all by default
+    } else {
+      setAvailableTexts([]);
+      setSelectedCanonicalTexts([]);
+    }
+  }
+
+  function toggleCanonicalText(text: string) {
+    if (selectedCanonicalTexts.includes(text)) {
+      setSelectedCanonicalTexts(selectedCanonicalTexts.filter(t => t !== text));
+    } else {
+      setSelectedCanonicalTexts([...selectedCanonicalTexts, text]);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
@@ -52,7 +119,11 @@ export default function CreateTenant() {
       if (!token) throw new Error('Authentication required');
 
       const payload: any = { name: name.trim() };
-      if (religionId) payload.religionId = religionId;
+      if (sectId) {
+        payload.taxonomyId = sectId;
+      } else if (religionId) {
+        payload.religionId = religionId;
+      }
 
       const resp = await fetch('/api/v1/tenants', {
         method: 'POST',
@@ -110,7 +181,7 @@ export default function CreateTenant() {
             <label style={styles.label}>Religion/Faith (Optional)</label>
             <select
               value={religionId}
-              onChange={(e) => setReligionId(e.target.value)}
+              onChange={(e) => handleReligionChange(e.target.value)}
               onFocus={loadReligions}
               disabled={loadingReligions}
               style={styles.select}
@@ -124,6 +195,51 @@ export default function CreateTenant() {
             </select>
             {loadingReligions && <p style={styles.hint}>Loading religions...</p>}
           </div>
+
+          {religionId && (
+            <div style={styles.field}>
+              <label style={styles.label}>Sect/Denomination (Optional)</label>
+              <select
+                value={sectId}
+                onChange={(e) => handleSectChange(e.target.value)}
+                disabled={loadingSects || sects.length === 0}
+                style={styles.select}
+              >
+                <option value="">Select a sect (optional)</option>
+                {sects.map(sect => (
+                  <option key={sect.id} value={sect.id}>
+                    {sect.displayName}
+                  </option>
+                ))}
+              </select>
+              {loadingSects && <p style={styles.hint}>Loading sects...</p>}
+              {!loadingSects && sects.length === 0 && (
+                <p style={styles.hint}>No sects available for this religion</p>
+              )}
+            </div>
+          )}
+
+          {sectId && availableTexts.length > 0 && (
+            <div style={styles.field}>
+              <label style={styles.label}>Canonical Texts/Focus (Optional)</label>
+              <div style={styles.checkboxGroup}>
+                {availableTexts.map(text => (
+                  <label key={text} style={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={selectedCanonicalTexts.includes(text)}
+                      onChange={() => toggleCanonicalText(text)}
+                      style={styles.checkbox}
+                    />
+                    <span>{text}</span>
+                  </label>
+                ))}
+              </div>
+              <p style={styles.hint}>
+                Select the texts/scriptures your organization focuses on
+              </p>
+            </div>
+          )}
 
           {error && <div style={styles.error}>{error}</div>}
 
@@ -213,6 +329,24 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '0.8rem',
     color: '#666',
     margin: '0'
+  },
+  checkboxGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    padding: '0.5rem 0'
+  },
+  checkboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    cursor: 'pointer',
+    fontSize: '0.95rem'
+  },
+  checkbox: {
+    width: '1.1rem',
+    height: '1.1rem',
+    cursor: 'pointer'
   },
   error: {
     background: '#fee',

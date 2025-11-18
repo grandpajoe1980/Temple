@@ -12,6 +12,42 @@
         "canonicalTexts": ["Bible"],
         "defaultCanonVersion": "ESV",
         "altCanonVersions": ["KJV","NIV","Good News Bible"]
+      },
+      {
+        "id": "christianity_catholic",
+        "type": "sect",
+        "displayName": "Catholic",
+        "defaultTerminology": { "donation": "offering", "leader": "Priest", "service": "Mass" },
+        "canonicalTexts": ["Bible"],
+        "defaultCanonVersion": "NAB",
+        "altCanonVersions": ["NRSV","Douay-Rheims"]
+      },
+      {
+        "id": "christianity_methodist",
+        "type": "sect",
+        "displayName": "Methodist",
+        "defaultTerminology": { "donation": "tithe", "leader": "Pastor", "service": "Worship Service" },
+        "canonicalTexts": ["Bible"],
+        "defaultCanonVersion": "NIV",
+        "altCanonVersions": ["KJV","ESV","NRSV"]
+      },
+      {
+        "id": "christianity_orthodox",
+        "type": "sect",
+        "displayName": "Orthodox",
+        "defaultTerminology": { "donation": "offering", "leader": "Priest", "service": "Divine Liturgy" },
+        "canonicalTexts": ["Bible"],
+        "defaultCanonVersion": "OSB",
+        "altCanonVersions": ["NKJV","EOB"]
+      },
+      {
+        "id": "christianity_pentecostal",
+        "type": "sect",
+        "displayName": "Pentecostal",
+        "defaultTerminology": { "donation": "tithe", "leader": "Pastor", "service": "Worship Service" },
+        "canonicalTexts": ["Bible"],
+        "defaultCanonVersion": "KJV",
+        "altCanonVersions": ["NIV","NKJV","ESV"]
       }
     ]
   },
@@ -26,6 +62,27 @@
         "displayName": "Theravada",
         "defaultTerminology": { "leader": "Bhikkhu", "service": "Dhamma Talk" },
         "canonicalTexts": ["Pali Canon"]
+      },
+      {
+        "id": "buddhism_mahayana",
+        "type": "sect",
+        "displayName": "Mahayana",
+        "defaultTerminology": { "leader": "Monk", "service": "Dharma Talk" },
+        "canonicalTexts": ["Mahayana Sutras","Prajnaparamita"]
+      },
+      {
+        "id": "buddhism_vajrayana",
+        "type": "sect",
+        "displayName": "Vajrayana",
+        "defaultTerminology": { "leader": "Lama", "service": "Puja" },
+        "canonicalTexts": ["Tibetan Canon","Tantras"]
+      },
+      {
+        "id": "buddhism_zen",
+        "type": "sect",
+        "displayName": "Zen",
+        "defaultTerminology": { "leader": "Roshi", "service": "Zazen" },
+        "canonicalTexts": ["Platform Sutra","Heart Sutra"]
       }
     ]
   },
@@ -39,7 +96,28 @@
         "type": "sect",
         "displayName": "Reform Judaism",
         "defaultTerminology": { "leader": "Rabbi", "service": "Service" },
-        "canonicalTexts": ["Tanakh"]
+        "canonicalTexts": ["Tanakh","Talmud"]
+      },
+      {
+        "id": "judaism_conservative",
+        "type": "sect",
+        "displayName": "Conservative Judaism",
+        "defaultTerminology": { "leader": "Rabbi", "service": "Service" },
+        "canonicalTexts": ["Tanakh","Talmud"]
+      },
+      {
+        "id": "judaism_orthodox",
+        "type": "sect",
+        "displayName": "Orthodox Judaism",
+        "defaultTerminology": { "leader": "Rabbi", "service": "Service" },
+        "canonicalTexts": ["Tanakh","Talmud","Mishnah"]
+      },
+      {
+        "id": "judaism_reconstructionist",
+        "type": "sect",
+        "displayName": "Reconstructionist Judaism",
+        "defaultTerminology": { "leader": "Rabbi", "service": "Service" },
+        "canonicalTexts": ["Tanakh","Talmud"]
       }
     ]
   },
@@ -53,7 +131,112 @@
         "type": "sect",
         "displayName": "Vaishnava",
         "defaultTerminology": { "leader": "Guru", "service": "Puja" },
-        "canonicalTexts": ["Bhagavad Gita","Vedas"]
+        "canonicalTexts": ["Bhagavad Gita","Vedas","Puranas"]
+      },
+      {
+        "id": "hinduism_shaiva",
+        "type": "sect",
+        "displayName": "Shaiva",
+        "defaultTerminology": { "leader": "Guru", "service": "Puja" },
+        "canonicalTexts": ["Vedas","Shaiva Agamas","Upanishads"]
+      },
+      {
+        "id": "hinduism_shakta",
+        "type": "sect",
+        "displayName": "Shakta",
+        "defaultTerminology": { "leader": "Guru", "service": "Puja" },
+        "canonicalTexts": ["Devi Mahatmya","Vedas","Tantras"]
+      },
+      {
+        "id": "hinduism_smarta",
+        "type": "sect",
+        "displayName": "Smarta",
+        "defaultTerminology": { "leader": "Guru", "service": "Puja" },
+        "canonicalTexts": ["Vedas","Upanishads","Bhagavad Gita"]
+      }
+    ]
+  },
+  {
+    "id": "islam",
+    "type": "religion",
+    "displayName": "Islam",
+    "children": [
+      {
+        "id": "islam_sunni",
+        "type": "sect",
+        "displayName": "Sunni",
+        "defaultTerminology": { "leader": "Imam", "service": "Khutbah", "donation": "zakat" },
+        "canonicalTexts": ["Quran","Hadith"]
+      },
+      {
+        "id": "islam_shia",
+        "type": "sect",
+        "displayName": "Shia",
+        "defaultTerminology": { "leader": "Imam", "service": "Majlis", "donation": "khums" },
+        "canonicalTexts": ["Quran","Hadith"]
+      },
+      {
+        "id": "islam_sufi",
+        "type": "sect",
+        "displayName": "Sufi",
+        "defaultTerminology": { "leader": "Sheikh", "service": "Dhikr", "donation": "sadaqah" },
+        "canonicalTexts": ["Quran","Hadith"]
+      }
+    ]
+  },
+  {
+    "id": "sikhism",
+    "type": "religion",
+    "displayName": "Sikhism",
+    "children": [
+      {
+        "id": "sikhism_khalsa",
+        "type": "sect",
+        "displayName": "Khalsa",
+        "defaultTerminology": { "leader": "Granthi", "service": "Kirtan", "donation": "dasvandh" },
+        "canonicalTexts": ["Guru Granth Sahib"]
+      },
+      {
+        "id": "sikhism_sahajdhari",
+        "type": "sect",
+        "displayName": "Sahajdhari",
+        "defaultTerminology": { "leader": "Granthi", "service": "Kirtan", "donation": "dasvandh" },
+        "canonicalTexts": ["Guru Granth Sahib"]
+      }
+    ]
+  },
+  {
+    "id": "bahai",
+    "type": "religion",
+    "displayName": "Baháʼí Faith",
+    "children": [
+      {
+        "id": "bahai_orthodox",
+        "type": "sect",
+        "displayName": "Baháʼí",
+        "defaultTerminology": { "leader": "Spiritual Assembly", "service": "Devotional Gathering", "donation": "contribution" },
+        "canonicalTexts": ["Kitab-i-Aqdas","Kitab-i-Iqan"]
+      }
+    ]
+  },
+  {
+    "id": "jainism",
+    "type": "religion",
+    "displayName": "Jainism",
+    "children": [
+      {
+        "id": "jainism_digambara",
+        "type": "sect",
+        "displayName": "Digambara",
+        "defaultTerminology": { "leader": "Muni", "service": "Pravachan" },
+        "canonicalTexts": ["Agamas","Tattvartha Sutra"]
+      },
+      {
+        "id": "jainism_svetambara",
+        "type": "sect",
+        "displayName": "Svetambara",
+        "defaultTerminology": { "leader": "Sadhu", "service": "Pravachan" },
+        "canonicalTexts": ["Agamas","Tattvartha Sutra"]
       }
     ]
   }
